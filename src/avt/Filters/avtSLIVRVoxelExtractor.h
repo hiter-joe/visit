@@ -104,7 +104,7 @@ class AVTFILTERS_API avtSLIVRVoxelExtractor : public avtVoxelExtractor
 
 
     // Getting the image
-    void             getImageDimensions(int &inUse, int dims[2], int screen_ll[2], int screen_ur[2], float &eyeDepth, float &clipDepth);
+    void             getImageDimensions(bool &inUse, int dims[2], int screen_ll[2], int screen_ur[2], float &eyeDepth, float &clipDepth);
     void             getComputedImage(float *image);
     void             setProcIdPatchID(int _proc, int _patch){ proc = _proc; patch = _patch; }
 
@@ -159,7 +159,7 @@ class AVTFILTERS_API avtSLIVRVoxelExtractor : public avtVoxelExtractor
 
 
     // Patch details for one image
-    int              patchDrawn;            // whether the patch is drawn or not
+    bool             patchDrawn;            // whether the patch is drawn or not
 
     int              imgWidth, imgHeight;
     int              imgDims[2];            // size of the patch

@@ -3,32 +3,26 @@
 // details.  No copyright assignment is required to contribute to VisIt.
 
 // *************************************************************************//
-//                          avtOSPRayImageCompositor.h                       //
+//                          avtOSPRayImageCompositor.h                      //
 // *************************************************************************//
 
-#ifndef AVT_OSPRAY_IMG_COMMUNICATOR_H
-#define AVT_OSPRAY_IMG_COMMUNICATOR_H
+#ifndef AVT_OSPRAY_IMAGE_COMPOSITOR_H
+#define AVT_OSPRAY_IMAGE_COMPOSITOR_H
 
 #include <avtOSPRayCommon.h>
+#include <avtParallel.h>
 
-#include <string>
-#include <vector>
 #include <map>
-#include <algorithm>
-#include <utility>
-
-#ifdef PARALLEL
-# include <mpi.h>
-#endif
+#include <vector>
 
 // ***************************************************************************
 //  Class: avtOSPRayImageCompositor
 //
 //  Purpose:
-//      Does the composition for Ray casting: OSPRay
+//      Does the composition for the ray casting
 //
-//  Programmer: Pascal Grosset
-//  Creation:   Spetember 20, 2013
+//  Programmer: Qi Wu
+//  Creation:   June 18, 2018
 //
 // ***************************************************************************
 
@@ -48,10 +42,10 @@ class avtOSPRayIC_Implementation
 //  Class: avtOSPRayImageCompositor
 //
 //  Purpose:
-//      Does the composition for Ray casting: SLIVR
+//      Does the composition for the ray casting
 //
-//  Programmer: Pascal Grosset
-//  Creation:   Spetember 20, 2013
+//  Programmer: Qi Wu
+//  Creation:   June 18, 2018
 //
 // ***************************************************************************
 
@@ -62,15 +56,21 @@ class avtOSPRayImageCompositor
     ~avtOSPRayImageCompositor();
 
     virtual const char *GetType(void)
-    { return "avtOSPRayImageCompositor"; }
+    {
+        return "avtOSPRayImageCompositor";
+    }
+
     virtual const char *GetDescription(void) 
-    { return "Doing compositing for ray casting OSPRay"; }
+    {
+        return "Doing compositing for ray casting OSPRay";
+    }
 
     float* GetFinalImageBuffer () { return finalImage; }
     int GetParSize ()             { return mpiSize;   }
     int GetParRank ()             { return mpiRank;   }
 
-    // Those functions can be static
+    // These functions need to be static as they are called from
+    // avtOSPRayIC_OneNode::Composite
     static void BlendFrontToBack(const float *, const int srcExtents[4],
                                  const int blendExtents[4], 
                                  float *&, const int dstExtents[4]);
@@ -137,18 +137,6 @@ class avtOSPRayImageCompositor
     // Image Compisition Implementation
     avtOSPRayIC_Implementation* compositor;
 
-
-
-
-
-
-
-
-
-
-
-
-
     // CLEAN UP BELOW
  private:
     //----------------------------------------------------------------------//
@@ -165,18 +153,15 @@ class avtOSPRayImageCompositor
     void SerialDirectSend
         (int, float*, int*, float*, float bgColor[4], int, int);
 
-    //----------------------------------------------------------------------//
     // Parallel Direct Send
-    //----------------------------------------------------------------------//
  public:
     void RegionAllocation(int *&);
     int  ParallelDirectSendManyPatches
-        (const std::multimap<int, ospray::ImgData>&,
-         const std::vector<ospray::ImgMetaData>&,
-         int, int*, int, int tags[2], int fullImageExtents[4]);
+        (const std::multimap<int, ImgData>&,
+	 const std::vector<ImgMetaData>&,
+	 int, int*, int, int tags[2], int fullImageExtents[4]);
 
  private:
-    ///--------------------------------------
     // flags for patch
     int totalPatches;
     bool compositingDone;
@@ -195,25 +180,27 @@ class avtOSPRayImageCompositor
     int getRegionEnd(int region){ return regionRankExtents[region*3+1]; }
     int getRegionSize(int region){ return regionRankExtents[region*3+2]; }
     int getMaxRegionHeight(){ return maxRegionHeight; }
-        
+
     int getScreenRegionStart(int region, int screenImgMinY, int screenImgMaxY)
     {
-        return CLAMP(getRegionStart(region)+screenImgMinY, 
-                     screenImgMinY, screenImgMaxY); 
+      return CLAMP(getRegionStart(region)+screenImgMinY,
+                   screenImgMinY, screenImgMaxY);
     }
+
     int getScreenRegionEnd(int region, int screenImgMinY, int screenImgMaxY)
     {
-        return CLAMP(getRegionEnd(region)+screenImgMinY, 
-                     screenImgMinY, screenImgMaxY); 
+      return CLAMP(getRegionEnd(region)+screenImgMinY,
+                   screenImgMinY, screenImgMaxY);
     }
 
  public:
-    //----------------------------------------------------------------------//
+    // Get the final composited image
+    void getcompositedImage(int imgBufferWidth, int imgBufferHeight,
+			    unsigned char *wholeImage);
 
-    void getcompositedImage(int imgBufferWidth, int imgBufferHeight, unsigned char *wholeImage);  // get the final composited image
 
-
-    int findRegionsForPatch(int patchExtents[4], int screenProjectedExtents[4], int numRegions, int &from, int &to);
+    int findRegionsForPatch(int patchExtents[4], int screenProjectedExtents[4],
+			    int numRegions, int &from, int &to);
 
 
     void parallelDirectSend(float *imgData, int imgExtents[4], int region[], int numRegions, int tags[2], int fullImageExtents[4]);     
@@ -226,8 +213,6 @@ class avtOSPRayImageCompositor
     float *intermediateImage; // Intermediate image, e.g. in parallel direct send
     int intermediateImageExtents[4];
     int intermediateImageBBox[4];
-
-
 };
 
-#endif//AVT_OSPRAY_IMG_COMMUNICATOR_H
+#endif

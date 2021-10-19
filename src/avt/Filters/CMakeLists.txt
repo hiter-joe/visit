@@ -116,7 +116,7 @@ avtXRayFilter.C
 
 IF(VISIT_SLIVR)
     LIST(APPEND AVTFILTERS_SOURCES
-         avtSLIVRCommon.C
+#         avtSLIVRCommon.C
          avtSLIVRImageCompositor.C
          avtSLIVRRayTracer.C
          avtSLIVRSamplePointExtractor.C
@@ -126,7 +126,7 @@ ENDIF()
 
 IF(VISIT_OSPRAY)
     LIST(APPEND AVTFILTERS_SOURCES
-         avtOSPRayCommon.C
+#         avtOSPRayCommon.C
          avtOSPRayImageCompositor.C
          avtOSPRayRayTracer.C
          avtOSPRaySamplePointExtractor.C
@@ -176,10 +176,6 @@ ${VTKh_INCLUDE_DIRS}
 ${VTKm_INCLUDE_DIRS}
 )
 
-if(VISIT_OSPRAY)
-    include_directories(${OSPRAY_INCLUDE_DIR})
-endif()
-
 # Add link directories
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_DIRECTORY})
 
@@ -187,7 +183,7 @@ LINK_DIRECTORIES(${LIBRARY_OUTPUT_DIRECTORY})
 ADD_LIBRARY(avtfilters_ser ${AVTFILTERS_SOURCES})
 TARGET_LINK_LIBRARIES(avtfilters_ser visitcommon lightweight_visit_vtk visit_vtk avtmath avtview avtpipeline_ser avtdatabase_ser avtdbatts VTK::CommonMath VTK::CommonTransforms VTK::FiltersGeneral VTK::FiltersModeling)
 IF(VISIT_OSPRAY) 
-    TARGET_LINK_LIBRARIES(avtfilters_ser ${OSPRAY_LIBRARIES})
+    TARGET_LINK_LIBRARIES(avtfilters_ser VTK::RenderingRayTracing)
     IF(ICET_FOUND)
         TARGET_LINK_LIBRARIES(avtfilters_ser ${ICET_FULLPATH_LIB})
     ENDIF()
@@ -199,7 +195,7 @@ IF(VISIT_PARALLEL)
     ADD_PARALLEL_LIBRARY(avtfilters_par ${AVTFILTERS_SOURCES})
     TARGET_LINK_LIBRARIES(avtfilters_par visitcommon lightweight_visit_vtk visit_vtk avtmath avtview avtpipeline_par avtdatabase_par avtdbatts VTK::CommonMath VTK::CommonTransforms VTK::FiltersGeneral VTK::FiltersModeling)
     IF(VISIT_OSPRAY) 
-        TARGET_LINK_LIBRARIES(avtfilters_par ${OSPRAY_LIBRARIES})
+        TARGET_LINK_LIBRARIES(avtfilters_par VTK::RenderingRayTracing)
         IF(ICET_FOUND)
             TARGET_LINK_LIBRARIES(avtfilters_par ${ICET_FULLPATH_LIB})
         ENDIF()

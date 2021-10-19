@@ -1530,7 +1530,7 @@ avtSLIVRVoxelExtractor::unProject(int _x, int _y, float _z, double _worldCoordin
 // ****************************************************************************
 
 void
-avtSLIVRVoxelExtractor::getImageDimensions(int &inUse, int dims[2], int screen_ll[2], int screen_ur[2], float &eyeDepth, float &clipDepth)
+avtSLIVRVoxelExtractor::getImageDimensions(bool &inUse, int dims[2], int screen_ll[2], int screen_ur[2], float &eyeDepth, float &clipDepth)
 {
     inUse = patchDrawn;
 
